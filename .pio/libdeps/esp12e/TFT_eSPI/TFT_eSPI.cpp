@@ -1297,7 +1297,9 @@ void TFT_eSPI::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const uint1
 
   data += dx + dy * w;
 
-  uint16_t  buffer[dw];
+  // uint16_t  buffer[dw];
+  // work around "a15 cannot be used in asm here" compiler bug when using an array on ESP8266
+  static uint16_t *buffer = (uint16_t *) malloc(dw);
 
   setWindow(x, y, x + dw - 1, y + dh - 1);
 
@@ -1329,7 +1331,8 @@ void TFT_eSPI::pushImage(int32_t x, int32_t y, int32_t w, int32_t h, const uint1
 
   int32_t xe = x + dw - 1, ye = y + dh - 1;
 
-  uint16_t  lineBuf[dw];
+  //uint16_t  lineBuf[dw];
+  static uint16_t *lineBuf = (uint16_t *) malloc(dw);
 
   // The little endian transp color must be byte swapped if the image is big endian
   if (!_swapBytes) transp = transp >> 8 | transp << 8;
